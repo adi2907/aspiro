@@ -1,8 +1,7 @@
 "use client";
 import React from 'react';
 import { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { ArrowBigDown, LayoutDashboard, MessageSquare, Target, Trophy } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Target, Trophy } from 'lucide-react';
 
 // Import all our screens
 import ExpenseDashboard from './ExpenseDashboard';
