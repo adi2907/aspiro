@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Plus, ArrowUpRight, ArrowDownRight, Wallet, Loader2, X } from 'lucide-react';
+import { useRouter } from 'next/navigation'; 
 
 interface Transaction {
   id: number;
@@ -92,6 +93,8 @@ const LOADING_STEPS: LoadingStep[] = [
 ];
 
 export default function ExpenseDashboard() {
+  const router = useRouter();
+  
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<DashboardData | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -183,9 +186,16 @@ export default function ExpenseDashboard() {
         setCurrentStep(i);
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
-      setData(generateSyntheticData());
+      // Instead of setting data and showing dashboard, transition to chat
       setIsLoading(false);
+      // Use the same state update mechanism as the nav bar in App.tsx
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('setCurrentScreen', { 
+          detail: 'chat' 
+        }));
+      }
     };
+  
 
     simulateAAFlow();
   }, []);

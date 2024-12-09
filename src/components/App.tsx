@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LayoutDashboard, MessageSquare, Target, Trophy } from 'lucide-react';
 
 // Import all our screens
@@ -11,6 +11,17 @@ import DemoFlow from './DemoFlow';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('dashboard');
+  useEffect(() => {
+    const handleScreenChange = (e: CustomEvent) => {
+      setCurrentScreen(e.detail);
+    };
+
+    window.addEventListener('setCurrentScreen', handleScreenChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('setCurrentScreen', handleScreenChange as EventListener);
+    };
+  }, []);
 
   const renderScreen = () => {
     switch(currentScreen) {

@@ -1,0 +1,2677 @@
+Repository Source Code Contents
+Generated on: Mon Dec  9 09:14:50 IST 2024
+----------------------------------------
+
+File: README.md
+----------------------------------------
+# Aspiro Financial App Demo
+
+A demo finance app showcasing different interactions and UI patterns for personal finance management.
+
+## Demo Scenarios
+
+1. **Financial Health Score** - Visual breakdown of user's financial health with insights
+2. **Gamified Savings** - Interactive savings goal with rewards and animations  
+3. **Subscription Insights** - Smart detection of unused subscriptions
+4. **[More demos in development]**
+
+## Tech Stack
+
+- Next.js 13+ with App Router
+- React 18
+- Tailwind CSS  
+- shadcn/ui components
+- Recharts for data visualization
+
+## Live Demo
+
+Visit: https://aspiro-fu35y7kku-adityas-projects-2e36843f.vercel.app/
+
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+----------------------------------------
+
+File: components.json
+----------------------------------------
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "iconLibrary": "lucide"
+}
+----------------------------------------
+
+File: components/ui/card.tsx
+----------------------------------------
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-xl border bg-card text-card-foreground shadow",
+      className
+    )}
+    {...props}
+  />
+))
+Card.displayName = "Card"
+
+const CardHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    {...props}
+  />
+))
+CardHeader.displayName = "CardHeader"
+
+const CardTitle = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("font-semibold leading-none tracking-tight", className)}
+    {...props}
+  />
+))
+CardTitle.displayName = "CardTitle"
+
+const CardDescription = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+CardDescription.displayName = "CardDescription"
+
+const CardContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+))
+CardContent.displayName = "CardContent"
+
+const CardFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center p-6 pt-0", className)}
+    {...props}
+  />
+))
+CardFooter.displayName = "CardFooter"
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+
+----------------------------------------
+
+File: lib/utils.ts
+----------------------------------------
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+----------------------------------------
+
+File: src/app/layout.tsx
+----------------------------------------
+import './globals.css'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = {
+  title: 'Finance App',
+  description: 'Personal Finance Management App',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
+    </html>
+  )
+}
+----------------------------------------
+
+File: src/app/page.tsx
+----------------------------------------
+
+import App from '@/src/components/App';
+
+export default function Home() {
+  return (
+    <main>
+      <App />
+    </main>
+  );
+}
+----------------------------------------
+
+File: src/components/App.tsx
+----------------------------------------
+"use client";
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { LayoutDashboard, MessageSquare, Target, Trophy } from 'lucide-react';
+
+// Import all our screens
+import ExpenseDashboard from './ExpenseDashboard';
+import ConversationalUI from './ConversationalUI';
+import GamificationScreen from './GamificationScreen';
+import DemoFlow from './DemoFlow';
+
+export default function App() {
+  const [currentScreen, setCurrentScreen] = useState('dashboard');
+  useEffect(() => {
+    const handleScreenChange = (e: CustomEvent) => {
+      setCurrentScreen(e.detail);
+    };
+
+    window.addEventListener('setCurrentScreen', handleScreenChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('setCurrentScreen', handleScreenChange as EventListener);
+    };
+  }, []);
+
+  const renderScreen = () => {
+    switch(currentScreen) {
+      case 'dashboard':
+        return <ExpenseDashboard />;
+      case 'chat':
+        return <ConversationalUI />;
+      case 'gamification':
+        return <GamificationScreen />;
+      case 'flows':
+        return <DemoFlow />;
+      default:
+        return <ExpenseDashboard />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex justify-around py-2">
+            <button
+              onClick={() => setCurrentScreen('dashboard')}
+              className={`flex flex-col items-center p-2 rounded-lg ${
+                currentScreen === 'dashboard' ? 'text-blue-500' : 'text-gray-500'
+              }`}
+            >
+              <LayoutDashboard className="h-6 w-6" />
+              <span className="text-xs mt-1">Dashboard</span>
+            </button>
+            
+            <button
+              onClick={() => setCurrentScreen('chat')}
+              className={`flex flex-col items-center p-2 rounded-lg ${
+                currentScreen === 'chat' ? 'text-blue-500' : 'text-gray-500'
+              }`}
+            >
+              <MessageSquare className="h-6 w-6" />
+              <span className="text-xs mt-1">Chat</span>
+            </button>
+            
+            <button
+              onClick={() => setCurrentScreen('gamification')}
+              className={`flex flex-col items-center p-2 rounded-lg ${
+                currentScreen === 'gamification' ? 'text-blue-500' : 'text-gray-500'
+              }`}
+            >
+              <Trophy className="h-6 w-6" />
+              <span className="text-xs mt-1">Achievements</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentScreen('flows')}
+              className={`flex flex-col items-center p-2 rounded-lg ${
+                currentScreen === 'flows' ? 'text-blue-500' : 'text-gray-500'
+              }`}
+            >
+              <Target className="h-6 w-6" />
+              <span className="text-xs mt-1">Demo Flows</span>
+            </button>
+            
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="pb-16">
+        {renderScreen()}
+      </div>
+    </div>
+  );
+}
+----------------------------------------
+
+File: src/components/ConversationalUI.tsx
+----------------------------------------
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { LineChart,PieChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar,Pie, Cell } from 'recharts';
+import { Send, Target, ChevronRight, Trophy, Gift, Rocket } from 'lucide-react';
+let messageIdCounter = 0;
+
+interface ChartDataEntry {
+  name: string;
+  value: number;
+  fill: string;
+}
+
+const HIGHLIGHTED_OPTIONS = [
+  'talk spending',
+  'Roast me',
+  'Set a Challenge',
+  // Add any new options you want highlighted here
+];
+
+const TOPIC_GROUPS = {
+  popular: {
+    title: "POPULAR TOPICS",
+    topics: [
+      "where's my money going?",
+      "any bills upcoming",
+      "talk spending"
+    ]
+  },
+  money: {
+    title: "YOUR MONEY",
+    topics: [
+      "add to savings",
+      "withdraw from savings", 
+      "set a spend challenge",
+      "get a quick cover"
+    ]
+  },
+  games: {
+    title: "GAMES",
+    topics: [
+      "hype me",
+      "roast me",
+      "play spendr",
+      "make Ignis smarter"
+    ]
+  }
+};
+
+interface SpendingDataPoint {
+  month: string;
+  budget: number;
+  actual: number;
+  underBudget: number;
+  overBudget: number;
+}
+
+// Process the raw data to calculate under/over budget values
+const processSpendingData = (data: { month: string; budget: number; actual: number }[]): SpendingDataPoint[] => {
+  return data.map(item => ({
+    ...item,
+    underBudget: item.actual < item.budget ? item.actual : 0,
+    overBudget: item.actual > item.budget ? item.actual : 0
+  }));
+};
+
+const rawSpendingData = [
+  { month: 'Jan', budget: 30000, actual: 28000 },
+  { month: 'Feb', budget: 30000, actual: 34000 },
+  { month: 'Mar', budget: 30000, actual: 42500 }
+];
+const monthlyBreakdown = [
+  { name: 'Groceries', value: 15000, fill: '#4CAF50' },  // 35%
+  { name: 'Food & Dining', value: 12000, fill: '#FF8042' }, // 28%
+  { name: 'Apparel', value: 8000, fill: '#0088FE' },   // 19%
+  { name: 'Others', value: 7500, fill: '#FFBB28' }    // 18%
+];
+
+
+const spendingData = processSpendingData(rawSpendingData);
+
+const peerComparisonData = [
+  { category: 'Top Savers', amount: 8000 },
+  { category: 'Your Friends', amount: 12000 },
+  { category: 'You', amount: 15000 }
+];
+
+const savingsGoalData = [
+  { month: 'Jan', goal: 10000, actual: 8000 },
+  { month: 'Feb', goal: 10000, actual: 9000 },
+  { month: 'Mar', goal: 10000, actual: 9500 }
+];
+
+const purchaseOptions = [
+  {
+    name: "Gaming Laptop",
+    price: 85000,
+    savings: 15000,
+    pros: "Best performance, future-proof",
+    cons: "Higher power consumption"
+  },
+  {
+    name: "Mid-range Laptop",
+    price: 65000,
+    savings: 20000,
+    pros: "Good value, sufficient for most tasks",
+    cons: "May need upgrade sooner"
+  }
+];
+
+const creditCardOptions = [
+  {
+    bank: "HDFC Bank",
+    card: "Regalia",
+    benefits: "5% cashback, 6 months no-cost EMI",
+    effectivePrice: 80750
+  },
+  {
+    bank: "Axis Bank",
+    card: "Flipkart",
+    benefits: "₹2000 instant discount, 9 months no-cost EMI",
+    effectivePrice: 83000
+  },
+  {
+    bank: "ICICI Bank",
+    card: "Amazon Pay",
+    benefits: "₹2500 instant discount, 12 months no-cost EMI",
+    effectivePrice: 82500
+  }
+];
+
+interface Message {
+  id: string;
+  type: 'bot' | 'user';
+  content: string;
+  options?: string[];
+  chart?: 'spending' | 'peer' | 'savings' | 'breakdown' | null;
+  data?: ChartDataEntry[];
+  purchaseOptions?: typeof purchaseOptions;
+  celebration?: boolean;
+  creditCards?: typeof creditCardOptions;
+  goalTracker?: GoalTracker;
+}
+
+interface GoalTracker {
+  current: number;
+  target: number;
+  percentage: number;
+}
+
+
+export default function ConversationalDemo() {
+  const [messages, setMessages] = useState<Message[]>([{
+    id: '1',
+    type: 'bot',
+    content: "Hey! I'm Ignis, your financial guide.Here's a breakdown of your spending patterns",
+  }]);
+
+  const [inputMessage, setInputMessage] = useState('');
+  const [showHomeScreen, setShowHomeScreen] = useState(true);
+
+  const addMessage = (message: Message) => {
+    const uniqueId = `msg-${++messageIdCounter}`;
+    setMessages(prev => [...prev, {
+      ...message,
+      id: uniqueId
+    }]);
+  };
+  
+  const handleOptionClick = (option: string) => {
+    setShowHomeScreen(false);
+    if (option === 'talk spending') {
+      addMessage({
+        id: Date.now().toString(),
+        type: 'bot',
+        content: "Let me show you how your spending looks compared to your plan:",
+        chart: 'spending',
+        options: ['spending breakdown for March', 'spending breakdown for Feb', 'Spending trends']
+      });
+    } else {
+      // For other options, keep existing behavior
+      addMessage({
+        id: Date.now().toString(),
+        type: 'user',
+        content: option
+      });
+    }
+
+    switch(option) {
+      case 'Look up current balance':
+        setTimeout(() => {
+          addMessage({
+            id: Date.now().toString(),
+            type: 'bot',
+            content: "Your current balance is ₹45,000. Here's what you might want to check:",
+            options: ['Spending overruns', 'Category insights', 'Recurring Charges']
+          });
+        }, 500);
+        break;
+          
+      case 'spending breakdown for March':
+        addMessage({
+          id: Date.now().toString(),
+          type: 'bot',
+          content: "Here's your spending breakdown for this month:",
+          chart: 'breakdown',
+          data: monthlyBreakdown,
+          options: ['Roast me', 'Category Insights', 'Spending trends']
+        });
+        break;
+      case 'Roast me':
+        setTimeout(() => {
+          addMessage({
+            id: Date.now().toString(),
+            type: 'bot',
+            content: "🔥 Wow, ₹15,000 on food delivery? Your kitchen must be feeling pretty neglected! Want to see how your foodie habits compare to others?",
+            chart: 'peer',
+            options: ['Set a Challenge', 'Best practices', 'Budget tips']
+          });
+        }, 500);
+        break;
+
+      case 'Set a Challenge':
+        setTimeout(() => {
+          addMessage({
+            id: Date.now().toString(),
+            type: 'bot',
+            content: "Let's set a goal to cut food delivery spending by 40%! Here's your savings progress:",
+            chart: 'savings',
+            options: ['Attain savings goals', 'Plan my month', 'Track my progress']
+          });
+        }, 500);
+        break;
+
+      case 'Attain savings goals':
+        setTimeout(() => {
+          addMessage({
+            id: Date.now().toString(),
+            type: 'bot',
+            content: "You're getting close to your laptop savings goal! Here are your options:",
+            options: ['Actionable steps', 'Automate my savings', 'Savings boost calculator']
+          });
+        }, 500);
+        break;
+
+      case 'Actionable steps':
+        setTimeout(() => {
+          addMessage({
+            id: Date.now().toString(),
+            type: 'bot',
+            content: "I suggest creating an RD of ₹5,000/month. This will help you reach your goal faster! Want to see some recommendations for your laptop purchase?",
+            options: ['Show me options', 'Set up RD now']
+          });
+        }, 500);
+        break;
+
+      case 'Show me options':
+        setTimeout(() => {
+          addMessage({
+            id: Date.now().toString(),
+            type: 'bot',
+            content: "Here are some options I've found based on your preferences and budget:",
+            purchaseOptions: purchaseOptions,
+            options: ['Set up savings plan', 'Compare more options']
+          });
+        }, 500);
+        break;
+
+      case 'Set up savings plan':
+        setTimeout(() => {
+          addMessage({
+            id: Date.now().toString(),
+            type: 'bot',
+            content: "🎉 Congratulations! You've reached 75% of your laptop savings goal!",
+            celebration: true,
+            options: ['Setup auto-debit', 'Remind me later']
+          });
+        }, 500);
+        break;
+
+        case 'Set up RD now':
+    setTimeout(() => {
+      addMessage({
+        id: Date.now().toString(),
+        type: 'bot',
+        content: "🎉 Congratulations! RD setup successful. You're making great progress!",
+        celebration: true,
+        goalTracker: {
+          current: 75000,
+          target: 85000,
+          percentage: 88
+        },
+        options: ['Compare prices', 'Credit card options', 'View all purchase options']
+      });
+    }, 500);
+    break;
+
+  case 'Credit card options':
+    setTimeout(() => {
+      addMessage({
+        id: Date.now().toString(),
+        type: 'bot',
+        content: "Here are the best credit cards for your purchase:",
+        creditCards: creditCardOptions,
+        options: ['Apply now', 'Compare prices', 'Remind me later']
+      });
+    }, 500);
+    break;
+      }
+  };
+
+  
+  const renderHomeScreen = () => (
+    <div className="space-y-8 p-4">
+      {Object.entries(TOPIC_GROUPS).map(([key, group]) => (
+        <div key={key}>
+          <h2 className="text-lg font-bold mb-4">{group.title}</h2>
+          <div className="flex flex-wrap gap-2">
+            {group.topics.map((topic) => (
+              <button
+                key={topic}
+                onClick={() => handleOptionClick(topic)}
+                className={`bg-white border rounded-full px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                  topic === 'talk spending' ? 'border-blue-500 border-2 animate-pulse' : ''
+                }`}
+              >
+                {topic}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <Card className="max-w-2xl mx-auto h-[80vh] flex flex-col">
+        <CardContent className="flex-1 overflow-y-auto p-4">
+        {showHomeScreen ? renderHomeScreen() : (
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <div key={message.id} 
+                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-[80%] rounded-lg p-4 ${
+                  message.type === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                }`}>
+                  <p>{message.content}</p>
+
+                  {message.chart === 'spending' && (
+                    <div className="h-64 mt-4">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={spendingData}>
+                          <XAxis dataKey="month" />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar 
+                            dataKey="budget" 
+                            fill="#3B82F6"
+                            name="Budget" 
+                          />
+                          <Bar 
+                            dataKey="underBudget" 
+                            fill="#10B981"
+                            stackId="actual"  // Add this
+                            name="Actual (Under)" 
+                          />
+                          <Bar 
+                            dataKey="overBudget" 
+                            fill="#F97316"
+                            stackId="actual"  // Add this
+                            name="Actual (Over)" 
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+
+                  {message.chart === 'peer' && (
+                    <div className="h-64 mt-4">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={peerComparisonData} layout="vertical">
+                          <XAxis type="number" />
+                          <YAxis dataKey="category" type="category" />
+                          <Tooltip />
+                          <Bar dataKey="amount" fill="#6366F1" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+
+                  {message.chart === 'breakdown' && message.data && (
+                    <div className="mt-4"> {/* Add wrapper div with mt-4 like spending chart */}
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={message.data}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="value"
+                            >
+                              {message.data.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                              ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="mt-4 space-y-2">
+                        {message.data.map((entry, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: entry.fill }}
+                              />
+                              <span>{entry.name}</span>
+                            </div>
+                            <span>₹{entry.value.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {message.chart === 'savings' && (
+                    <div className="h-64 mt-4">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={savingsGoalData}>
+                          <XAxis dataKey="month" />
+                          <YAxis />
+                          <Tooltip />
+                          <Line type="monotone" dataKey="goal" stroke="#10B981" name="Goal" />
+                          <Line type="monotone" dataKey="actual" stroke="#6366F1" name="Actual" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+                  
+
+                  
+
+                  {message.purchaseOptions && (
+                    <div className="mt-4 space-y-3">
+                      {message.purchaseOptions.map((option, index) => (
+                        <div key={index} className="bg-white p-3 rounded-lg border">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-medium">{option.name}</h3>
+                            <span className="text-green-600">₹{option.price.toLocaleString()}</span>
+                          </div>
+                          <p className="text-sm text-green-600 mt-1">Potential savings: ₹{option.savings.toLocaleString()}</p>
+                          <div className="mt-2 text-sm">
+                            <p className="text-green-600">✓ {option.pros}</p>
+                            <p className="text-red-600">✗ {option.cons}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {message.celebration && (
+                    <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <div className="flex items-center gap-2">
+                        <Trophy className="h-5 w-5 text-yellow-500" />
+                        <span className="font-medium text-yellow-800">Achievement Unlocked!</span>
+                      </div>
+                      <div className="mt-2">
+                        <div className="w-full bg-yellow-200 rounded-full h-2">
+                          <div className="bg-yellow-500 h-2 rounded-full w-[75%]"></div>
+                        </div>
+                        <p className="text-sm text-yellow-800 mt-1">75% of goal reached</p>
+                      </div>
+                    </div>
+                  )}
+
+
+                  {message.options && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {message.options.map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleOptionClick(option)}
+                          className={`bg-white border rounded-full px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                            HIGHLIGHTED_OPTIONS.includes(option) ? 'border-blue-500 border-2 animate-pulse' : ''
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {message.creditCards && (
+                    <div className="mt-4 space-y-3">
+                      {message.creditCards.map((card, index) => (
+                        <div key={index} className="bg-white p-3 rounded-lg border">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium">{card.bank} {card.card}</h3>
+                              <p className="text-sm text-gray-600 mt-1">{card.benefits}</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-green-600">₹{card.effectivePrice.toLocaleString()}</span>
+                              <p className="text-xs text-gray-500">Effective price</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {message.goalTracker && (
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">Laptop Savings Goal</span>
+                        <span className="text-blue-600">{message.goalTracker.percentage}%</span>
+                      </div>
+                      <div className="w-full bg-blue-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-1000" 
+                          style={{ width: `${message.goalTracker.percentage}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between mt-2 text-sm">
+                        <span>₹{message.goalTracker.current.toLocaleString()}</span>
+                        <span>₹{message.goalTracker.target.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            ))}
+          </div>
+          )}
+        </CardContent>
+
+        <div className="p-4 border-t">
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1 rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
+              <Send className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+----------------------------------------
+
+File: src/components/DemoFlow.tsx
+----------------------------------------
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Play, ArrowRight, Rocket, Coffee, Users, Target, X } from 'lucide-react';
+import { SpendingInsightsDemo } from './demos/SpendingInsightsDemo';
+import {GamifiedSavingsDemo} from './demos/GamifiedSavingsDemo'
+import {RoastDemo} from './demos/RoastDemo'
+import { PeerComparisonDemo } from './demos/PeerComparison';
+import { FinancialHealthDemo } from './demos/FinancialHealthDemo';
+import { SubscriptionInsightsDemo } from './demos/SubscriptionInsightsDemo';
+
+
+
+const DEMOS = [
+  {
+    id: 'spending-insights',
+    title: 'Spending Insights',
+    component: SpendingInsightsDemo,
+    icon: Play
+  },
+  {
+    id: 'gamified-savings',
+    title: 'Gamified Savings',
+    component: GamifiedSavingsDemo,
+    icon: Rocket
+  },
+  {
+    id: 'roast-spending',
+    title: 'Overspending',
+    component: RoastDemo,
+    icon: Coffee
+  },
+  {
+    id: 'peer-comparison',
+    title: 'Peer Comparison',
+    component: PeerComparisonDemo,
+    icon: Users
+  },
+  {
+    id: 'financial-health',
+    title: 'Financial Health Score',
+    component: FinancialHealthDemo,
+    icon: Target
+  },
+  {
+    id: 'subscription-insights',
+    title: 'Subscription Insights',
+    component: SubscriptionInsightsDemo,
+    icon: X
+  }
+];
+
+const DemoFlow = () => {
+  const [selectedDemo, setSelectedDemo] = useState<string | null>(null);
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {!selectedDemo ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Demos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {DEMOS.map((demo) => (
+                  <button
+                    key={demo.id}
+                    onClick={() => setSelectedDemo(demo.id)}
+                    className="w-full flex items-center justify-between p-4 bg-white border rounded-lg hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <demo.icon className="h-5 w-5 text-blue-500" />
+                      <span>{demo.title}</span>
+                    </div>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            <button
+              onClick={() => setSelectedDemo(null)}
+              className="text-blue-500 hover:text-blue-600"
+            >
+              ← Back to demos
+            </button>
+            <Card>
+              <CardContent className="p-6">
+                {selectedDemo && (
+                  <DemoComponent 
+                    demo={DEMOS.find(d => d.id === selectedDemo)?.component} 
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Helper component to handle dynamic component rendering
+const DemoComponent = ({ demo }: { demo: React.ComponentType | undefined }) => {
+  if (!demo) return null;
+  const Demo = demo;
+  return <Demo />;
+};
+
+export default DemoFlow;
+
+// import React, { useState } from 'react';
+// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+// import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+// import { Play, ArrowRight, Coffee, UtensilsCrossed } from 'lucide-react';
+
+// const demoData = {
+//   "spending-insights": {
+//     userPrompt: "How much did I spend on dining this month?",
+//     conversation: [
+//       {
+//         type: 'user',
+//         text: "How much did I spend on dining this month?"
+//       },
+//       {
+//         type: 'bot',
+//         text: "You've spent ₹4,500 on dining this month. Here's the breakdown:",
+//         chartData: [
+//           { name: 'Zomato', value: 2200, color: '#FF4B4B' },
+//           { name: 'Swiggy', value: 1500, color: '#FF8C00' },
+//           { name: 'Restaurants', value: 800, color: '#4CAF50' }
+//         ],
+//         followUp: "I noticed you ordered from Zomato twice for dinner this week. You could save around ₹800 by cooking at home on weekdays - that's enough for a weekend brunch at your favorite café! Want some quick dinner recipes that take less time than waiting for delivery? 👩‍🍳"
+//       }
+//     ]
+//   }
+// };
+
+// const DemoFlow = () => {
+//   const [selectedDemo, setSelectedDemo] = useState<string | null>(null);
+//   const [currentStep, setCurrentStep] = useState(0);
+
+//   const renderDemoContent = () => {
+//     if (!selectedDemo) return null;
+//     const demo = demoData[selectedDemo as keyof typeof demoData];
+    
+//     return (
+//       <div className="space-y-6">
+//         <div className="space-y-4">
+//           {demo.conversation.map((message, index) => (
+//             <div
+//               key={index}
+//               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+//             >
+//               <div
+//                 className={`max-w-[80%] rounded-lg p-4 ${
+//                   message.type === 'user'
+//                     ? 'bg-blue-500 text-white'
+//                     : 'bg-gray-100'
+//                 }`}
+//               >
+//                 <p className="whitespace-pre-line">{message.text}</p>
+//                 {message.chartData && (
+//                   <div className="mt-4">
+//                     <div className="h-64">
+//                       <ResponsiveContainer width="100%" height="100%">
+//                         <PieChart>
+//                           <Pie
+//                             data={message.chartData}
+//                             cx="50%"
+//                             cy="50%"
+//                             innerRadius={60}
+//                             outerRadius={80}
+//                             paddingAngle={5}
+//                             dataKey="value"
+//                           >
+//                             {message.chartData.map((entry, index) => (
+//                               <Cell key={`cell-${index}`} fill={entry.color} />
+//                             ))}
+//                           </Pie>
+//                           <Tooltip />
+//                         </PieChart>
+//                       </ResponsiveContainer>
+//                     </div>
+//                     <div className="mt-4 space-y-2">
+//                       {message.chartData.map((entry, index) => (
+//                         <div key={index} className="flex items-center justify-between">
+//                           <div className="flex items-center gap-2">
+//                             <div
+//                               className="w-3 h-3 rounded-full"
+//                               style={{ backgroundColor: entry.color }}
+//                             />
+//                             <span>{entry.name}</span>
+//                           </div>
+//                           <span>₹{entry.value}</span>
+//                         </div>
+//                       ))}
+//                     </div>
+//                   </div>
+//                 )}
+//                 {message.followUp && (
+//                   <div className="mt-4 p-3 bg-blue-50 rounded-lg text-gray-800">
+//                     {message.followUp}
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+
+//         <div className="flex gap-3">
+//           <button className="bg-white border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+//             Show me recipes
+//             <UtensilsCrossed className="h-4 w-4" />
+//           </button>
+//           <button className="bg-white border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+//             Set dining budget
+//             <Coffee className="h-4 w-4" />
+//           </button>
+//         </div>
+//       </div>
+//     );
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 p-4">
+//       <div className="max-w-4xl mx-auto space-y-6">
+//         {!selectedDemo ? (
+//           <Card>
+//             <CardHeader>
+//               <CardTitle>Interactive Demos</CardTitle>
+//             </CardHeader>
+//             <CardContent>
+//               <div className="space-y-4">
+//                 <button
+//                   onClick={() => setSelectedDemo('spending-insights')}
+//                   className="w-full flex items-center justify-between p-4 bg-white border rounded-lg hover:bg-gray-50"
+//                 >
+//                   <div className="flex items-center gap-3">
+//                     <Play className="h-5 w-5 text-blue-500" />
+//                     <span>Spending Insights</span>
+//                   </div>
+//                   <ArrowRight className="h-4 w-4" />
+//                 </button>
+//               </div>
+//             </CardContent>
+//           </Card>
+//         ) : (
+//           <div className="space-y-6">
+//             <button
+//               onClick={() => setSelectedDemo(null)}
+//               className="text-blue-500 hover:text-blue-600"
+//             >
+//               ← Back to demos
+//             </button>
+//             <Card>
+//               <CardContent className="p-6">
+//                 {renderDemoContent()}
+//               </CardContent>
+//             </Card>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default DemoFlow;
+----------------------------------------
+
+File: src/components/ExpenseDashboard.tsx
+----------------------------------------
+"use client";
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { Plus, ArrowUpRight, ArrowDownRight, Wallet, Loader2, X } from 'lucide-react';
+import { useRouter } from 'next/navigation'; 
+
+interface Transaction {
+  id: number;
+  date: string;
+  description: string;
+  amount: number;
+  category: string;
+  merchant: string;
+  type: string;
+}
+
+interface Summary {
+  totalSpent: number;
+  totalIncome: number;
+  categorySplit: Record<string, number>;
+}
+
+interface DashboardData {
+  transactions: Transaction[];
+  summary: Summary;
+}
+
+interface LoadingStep {
+  title: string;
+  detail: string;
+}
+
+interface MerchantConfig {
+  name: string;
+  items: string[];
+}
+
+interface MerchantCategories {
+  [key: string]: MerchantConfig[];
+}
+
+const MERCHANTS: MerchantCategories = {
+  'Food & Dining': [
+    { name: 'Swiggy', items: ['Burger King', 'McDonalds', 'Pizza Hut', 'Dominos', 'Bowl Company'] },
+    { name: 'Zomato', items: ['Behrouz Biryani', 'Subway', 'KFC', 'Chinese Box', 'Mad Over Donuts'] }
+  ],
+  'Entertainment': [
+    { name: 'Netflix', items: ['Monthly Subscription'] },
+    { name: 'Spotify', items: ['Premium Subscription'] },
+    { name: 'Amazon Prime', items: ['Annual Subscription'] },
+    { name: 'BookMyShow', items: ['Movie Tickets', 'Event Tickets'] }
+  ],
+  'Shopping': [
+    { name: 'Amazon', items: ['Electronics', 'Books', 'Home Appliances', 'Clothing'] },
+    { name: 'Myntra', items: ['Clothing', 'Shoes', 'Accessories'] },
+    { name: 'Flipkart', items: ['Electronics', 'Home Goods', 'Fashion'] }
+  ],
+  'Transport': [
+    { name: 'Uber', items: ['Ride'] },
+    { name: 'Ola', items: ['Ride'] },
+    { name: 'Rapido', items: ['Bike Ride'] }
+  ],
+  'Utilities': [
+    { name: 'BESCOM', items: ['Electricity Bill'] },
+    { name: 'Airtel', items: ['Mobile Bill', 'Broadband Bill'] },
+    { name: 'Jio', items: ['Mobile Recharge'] }
+  ],
+  'Groceries': [
+    { name: 'BigBasket', items: ['Monthly Groceries', 'Fresh Vegetables'] },
+    { name: 'Blinkit', items: ['Quick Groceries', 'Daily Essentials'] },
+    { name: 'Zepto', items: ['Instant Delivery', 'Daily Needs'] }
+  ]
+};
+
+const LOADING_STEPS: LoadingStep[] = [
+  {
+    title: "Initiating Account Aggregator connection",
+    detail: "Connecting to HDFC Bank via AA..."
+  },
+  {
+    title: "Fetching consent details",
+    detail: "Getting your consent for financial data access..."
+  },
+  {
+    title: "Processing bank statements",
+    detail: "Analyzing your transactions..."
+  },
+  {
+    title: "Organizing your data",
+    detail: "Creating personalized insights..."
+  }
+];
+
+export default function ExpenseDashboard() {
+  const router = useRouter();
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const generateSyntheticData = (): DashboardData => {
+    const transactions: Transaction[] = [];
+    const startDate = new Date('2024-03-01');
+    const endDate = new Date('2024-03-31');
+    let id = 1;
+
+    // Salary credit
+    transactions.push({
+      id: id++,
+      date: '2024-03-01',
+      description: 'Salary Credit - March 2024',
+      amount: 65000,
+      category: 'Income',
+      merchant: 'Employer',
+      type: 'Bank Transfer'
+    });
+
+    // Generate random transactions
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const numTransactions = Math.floor(Math.random() * 3) + 2;
+      
+      for (let i = 0; i < numTransactions; i++) {
+        const categories = Object.keys(MERCHANTS);
+        const category = categories[Math.floor(Math.random() * categories.length)];
+        const merchantGroup = MERCHANTS[category][Math.floor(Math.random() * MERCHANTS[category].length)];
+        const item = merchantGroup.items[Math.floor(Math.random() * merchantGroup.items.length)];
+        
+        let amount: number;
+        switch(category) {
+          case 'Food & Dining':
+            amount = -(Math.floor(Math.random() * 500) + 200);
+            break;
+          case 'Entertainment':
+            amount = -(Math.floor(Math.random() * 300) + 200);
+            break;
+          case 'Shopping':
+            amount = -(Math.floor(Math.random() * 3000) + 500);
+            break;
+          case 'Transport':
+            amount = -(Math.floor(Math.random() * 200) + 100);
+            break;
+          case 'Utilities':
+            amount = -(Math.floor(Math.random() * 1000) + 500);
+            break;
+          case 'Groceries':
+            amount = -(Math.floor(Math.random() * 2000) + 300);
+            break;
+          default:
+            amount = -Math.floor(Math.random() * 1000);
+        }
+
+        transactions.push({
+          id: id++,
+          date: d.toISOString().split('T')[0],
+          description: `${merchantGroup.name} - ${item}`,
+          amount,
+          category,
+          merchant: merchantGroup.name,
+          type: Math.random() > 0.5 ? 'UPI' : 'Card'
+        });
+      }
+    }
+
+    const categorySplit = transactions.reduce<Record<string, number>>((acc, t) => {
+      if (t.amount < 0) {
+        acc[t.category] = (acc[t.category] || 0) + Math.abs(t.amount);
+      }
+      return acc;
+    }, {});
+
+    return {
+      transactions: transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+      summary: {
+        totalSpent: Math.abs(transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0)),
+        totalIncome: transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0),
+        categorySplit
+      }
+    };
+  };
+
+  useEffect(() => {
+    const simulateAAFlow = async () => {
+      for (let i = 0; i < LOADING_STEPS.length; i++) {
+        setCurrentStep(i);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+      // Instead of setting data and showing dashboard, transition to chat
+      setIsLoading(false);
+      // Use the same state update mechanism as the nav bar in App.tsx
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('setCurrentScreen', { 
+          detail: 'chat' 
+        }));
+      }
+    };
+  
+
+    simulateAAFlow();
+  }, []);
+
+  if (isLoading || !data) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-lg">
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center space-y-6">
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+              
+              <div className="space-y-4 w-full">
+                {LOADING_STEPS.map((step, index) => (
+                  <div 
+                    key={index} 
+                    className={`flex items-center space-x-4 ${
+                      index === currentStep ? 'text-blue-500' : 
+                      index < currentStep ? 'text-gray-400' : 'text-gray-300'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full ${
+                      index === currentStep ? 'bg-blue-500 animate-pulse' : 
+                      index < currentStep ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    <div>
+                      <p className="font-medium">{step.title}</p>
+                      <p className="text-sm text-gray-500">{step.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const pieData = Object.entries(data.summary.categorySplit).map(([name, value]) => ({
+    name,
+    value
+  }));
+
+  const COLORS = ['#FF8042', '#00C49F', '#FFBB28', '#FF8042', '#0088FE', '#FF0000'];
+
+  const filteredTransactions = selectedCategory 
+    ? data.transactions.filter(t => t.category === selectedCategory)
+    : data.transactions;
+
+  const handlePieClick = (data: { name: string } | undefined) => {
+    if (data?.name) {
+      setSelectedCategory(data.name);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total Spent</p>
+                  <p className="text-2xl font-bold">₹{data.summary.totalSpent.toLocaleString()}</p>
+                </div>
+                <ArrowDownRight className="h-8 w-8 text-red-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total Income</p>
+                  <p className="text-2xl font-bold">₹{data.summary.totalIncome.toLocaleString()}</p>
+                </div>
+                <ArrowUpRight className="h-8 w-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Categories</p>
+                  <p className="text-2xl font-bold">{Object.keys(data.summary.categorySplit).length}</p>
+                </div>
+                <Wallet className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Transactions</p>
+                  <p className="text-2xl font-bold">{data.transactions.length}</p>
+                </div>
+                <Plus className="h-8 w-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Pie Chart */}
+          <Card className="md:col-span-1">
+            <CardHeader>
+              <CardTitle>Spending by Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                      onClick={(data) => handlePieClick(data)}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={COLORS[index % COLORS.length]}
+                          stroke="none"
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              
+              {/* Category Legend */}
+              <div className="mt-4 space-y-2">
+                {pieData.map((entry, index) => (
+                  <div 
+                    key={entry.name}
+                    className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded"
+                    onClick={() => setSelectedCategory(entry.name)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      />
+                      <span>{entry.name}</span>
+                    </div>
+                    <span>₹{entry.value.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Transactions List */}
+          <Card className="md:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle>Recent Transactions</CardTitle>
+              {selectedCategory && (
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-4 w-4" /> Clear filter
+                </button>
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredTransactions.slice(0, 10).map((transaction) => (
+                  <div 
+                    key={transaction.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium">{transaction.description}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(transaction.date).toLocaleDateString()} • {transaction.type}
+                      </p>
+                    </div>
+                    <p className={`font-medium ${
+                      transaction.amount < 0 ? 'text-red-500' : 'text-green-500'
+                    }`}>
+                      {transaction.amount < 0 ? '-' : '+'}₹{Math.abs(transaction.amount).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+----------------------------------------
+
+File: src/components/GamificationScreen.tsx
+----------------------------------------
+"use client";
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Trophy, Flame, Target, Star, TrendingUp, Zap, Crown, Shield } from 'lucide-react';
+
+export default function GamificationScreen() {
+  // Sample user stats
+  const stats = {
+    financialHealthScore: 78,
+    currentStreak: 5,
+    savingsRate: 24,
+    budgetAdherence: 85,
+    level: 8,
+    xp: 760,
+    nextLevelXp: 1000
+  };
+
+  // Recent achievements
+  const achievements = [
+    { 
+      id: 1, 
+      title: "Savings Superstar", 
+      description: "Saved ₹5,000 this month",
+      icon: Star,
+      date: "2 days ago",
+      xp: 100,
+      achieved: true 
+    },
+    { 
+      id: 2, 
+      title: "Budget Master", 
+      description: "Stayed under budget for 3 categories",
+      icon: Shield,
+      date: "1 week ago",
+      xp: 150,
+      achieved: true
+    },
+    { 
+      id: 3, 
+      title: "Investment Rookie", 
+      description: "Made your first investment",
+      icon: TrendingUp,
+      date: "2 weeks ago",
+      xp: 200,
+      achieved: false
+    }
+  ];
+
+  // Leaderboard data
+  const leaderboard = [
+    { rank: 1, name: "Savings Ninja", points: 2500, isUser: false },
+    { rank: 2, name: "Budget Beast", points: 2200, isUser: false },
+    { rank: 3, name: "You", points: 2100, isUser: true },
+    { rank: 4, name: "Money Master", points: 2000, isUser: false },
+    { rank: 5, name: "Finance Rookie", points: 1800, isUser: false }
+  ];
+
+  // Current challenges
+  const challenges = [
+    { 
+      id: 1, 
+      title: "No Food Delivery Week", 
+      progress: 70, 
+      reward: 200,
+      endDate: "2 days left"
+    },
+    { 
+      id: 2, 
+      title: "Save ₹10,000", 
+      progress: 45, 
+      reward: 300,
+      endDate: "12 days left"
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Top Stats */}
+        <div className="grid grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm opacity-80">Financial Health Score</p>
+                  <p className="text-3xl font-bold">{stats.financialHealthScore}</p>
+                </div>
+                <Trophy className="h-8 w-8 opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-500 to-red-600 text-white">
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm opacity-80">Current Streak</p>
+                  <p className="text-3xl font-bold">{stats.currentStreak} days</p>
+                </div>
+                <Flame className="h-8 w-8 opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm opacity-80">Savings Rate</p>
+                  <p className="text-3xl font-bold">{stats.savingsRate}%</p>
+                </div>
+                <Target className="h-8 w-8 opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white">
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm opacity-80">Budget Score</p>
+                  <p className="text-3xl font-bold">{stats.budgetAdherence}%</p>
+                </div>
+                <Zap className="h-8 w-8 opacity-80" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-3 gap-6">
+          {/* Achievements */}
+          <Card className="col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-yellow-500" />
+                Recent Achievements
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {achievements.map(achievement => (
+                  <div 
+                    key={achievement.id} 
+                    className={`flex items-center justify-between p-3 rounded-lg border ${
+                      achievement.achieved ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-full ${
+                        achievement.achieved ? 'bg-green-500' : 'bg-gray-400'
+                      }`}>
+                        <achievement.icon className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{achievement.title}</p>
+                        <p className="text-sm text-gray-600">{achievement.description}</p>
+                        <p className="text-xs text-gray-500">{achievement.date}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-gray-600">+{achievement.xp} XP</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Leaderboard */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Crown className="h-5 w-5 text-yellow-500" />
+                Weekly Leaderboard
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {leaderboard.map((entry, index) => (
+                  <div 
+                    key={index}
+                    className={`flex items-center justify-between p-3 rounded-lg ${
+                      entry.isUser ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-6 h-6 flex items-center justify-center rounded-full ${
+                        index < 3 ? 'bg-yellow-500 text-white' : 'bg-gray-200'
+                      }`}>
+                        {entry.rank}
+                      </div>
+                      <p className="font-medium">{entry.name}</p>
+                    </div>
+                    <p className="text-sm font-medium">{entry.points}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Active Challenges */}
+          <Card className="col-span-3">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-blue-500" />
+                Active Challenges
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                {challenges.map(challenge => (
+                  <div key={challenge.id} className="p-4 border rounded-lg">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h3 className="font-medium">{challenge.title}</h3>
+                        <p className="text-sm text-gray-500">{challenge.endDate}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-600">+{challenge.reward} XP</p>
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-blue-600 h-2.5 rounded-full"
+                        style={{ width: `${challenge.progress}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">{challenge.progress}% complete</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Level Progress */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <p className="text-sm text-gray-500">Level {stats.level}</p>
+                <p className="font-medium">{stats.xp} / {stats.nextLevelXp} XP</p>
+              </div>
+              <p className="text-sm text-gray-500">Next: Level {stats.level + 1}</p>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-purple-600 h-2.5 rounded-full"
+                style={{ width: `${(stats.xp / stats.nextLevelXp) * 100}%` }}
+              ></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+----------------------------------------
+
+File: src/components/demos/FinancialHealthDemo.tsx
+----------------------------------------
+import React, { useState, useEffect } from 'react';
+import { Card } from "@/components/ui/card";
+import { ResponsiveContainer, RadialBarChart, RadialBar } from 'recharts';
+import { Target, TrendingUp, CreditCard } from 'lucide-react';
+
+interface Message {
+  type: 'user' | 'bot';
+  content: string;
+}
+
+export const FinancialHealthDemo = () => {
+  const [showUserPrompt, setShowUserPrompt] = useState(false);
+  const [showBotResponse, setShowBotResponse] = useState(false);
+  const [showScore, setShowScore] = useState(false);
+
+  const scoreData = [
+    { name: 'Overall', value: 78, fill: '#4F46E5' },
+    { name: 'Savings', value: 90, fill: '#22C55E' },
+    { name: 'Spending', value: 60, fill: '#EF4444' },
+    { name: 'Debt', value: 70, fill: '#F59E0B' }
+  ];
+
+  useEffect(() => {
+    // Show user prompt after 1 second
+    setTimeout(() => setShowUserPrompt(true), 1000);
+    
+    // Show bot response after 2.5 seconds
+    setTimeout(() => setShowBotResponse(true), 2500);
+    
+    // Show score visualization after 3.5 seconds
+    setTimeout(() => setShowScore(true), 3500);
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      {showUserPrompt && (
+        <div className="flex justify-end animate-fade-in">
+          <div className="max-w-[80%] rounded-lg p-4 bg-blue-500 text-white">
+            What's my financial health score?
+          </div>
+        </div>
+      )}
+
+      {showBotResponse && (
+        <div className="flex justify-start animate-fade-in">
+          <div className="max-w-[80%] rounded-lg p-4 bg-gray-100">
+            Your score is 78/100. Let me break that down for you...
+          </div>
+        </div>
+      )}
+
+      {showScore && (
+        <div className="animate-fade-in">
+          <Card className="p-6">
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart
+                  innerRadius="30%"
+                  outerRadius="100%"
+                  data={scoreData}
+                  startAngle={180}
+                  endAngle={0}
+                >
+                  <RadialBar
+                    minAngle={15}
+                    background
+                    clockWise={true}
+                    dataKey="value"
+                  />
+                </RadialBarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              {scoreData.map((score, index) => (
+                <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                  <div className="flex items-center gap-3">
+                    {index === 1 && <TrendingUp className="h-5 w-5" style={{ color: score.fill }} />}
+                    {index === 2 && <Target className="h-5 w-5" style={{ color: score.fill }} />}
+                    {index === 3 && <CreditCard className="h-5 w-5" style={{ color: score.fill }} />}
+                    <span className="font-medium">{score.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-32 h-2 bg-gray-200 rounded-full">
+                      <div
+                        className="h-2 rounded-full transition-all duration-1000"
+                        style={{
+                          width: `${score.value}%`,
+                          backgroundColor: score.fill
+                        }}
+                      />
+                    </div>
+                    <span className="w-8 text-right">{score.value}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+              <p className="text-blue-800">
+                You're doing great with savings! Want to set some monthly spending caps to boost your score further?
+              </p>
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+};
+----------------------------------------
+
+File: src/components/demos/GamifiedSavingsDemo.tsx
+----------------------------------------
+// src/components/demos/GamifiedSavingsDemo.tsx
+import React, { useState } from 'react';
+import { Rocket, Flame, Check } from 'lucide-react';
+import confetti from 'canvas-confetti';
+
+interface SavingsState {
+  currentAmount: number;
+  targetAmount: number;
+  streakDays: number;
+  isCompleted: boolean;
+}
+
+export const GamifiedSavingsDemo = () => {
+  const [state, setState] = useState<SavingsState>({
+    currentAmount: 18000,
+    targetAmount: 20000,
+    streakDays: 12,
+    isCompleted: false
+  });
+
+  const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
+  const [transferComplete, setTransferComplete] = useState(false);
+
+  const fireConfetti = () => {
+    // Fire confetti from both sides
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 }
+    };
+
+    function fire(particleRatio: number, opts: confetti.Options) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio),
+        scalar: 1.2
+      });
+    }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+      origin: { x: 0.2 }
+    });
+
+    fire(0.2, {
+      spread: 60,
+      origin: { x: 0.5 }
+    });
+
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      origin: { x: 0.8 }
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      origin: { x: 0.4 }
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+      origin: { x: 0.6 }
+    });
+  };
+
+  const handleTransfer = () => {
+    setShowTransferConfirmation(true);
+  };
+
+  const confirmTransfer = () => {
+    setShowTransferConfirmation(false);
+    
+    // Simulate loading and then show success with confetti
+    setTimeout(() => {
+      setState(prev => ({
+        ...prev,
+        currentAmount: prev.currentAmount + 500,
+        streakDays: prev.streakDays + 1,
+        isCompleted: prev.currentAmount + 500 >= prev.targetAmount
+      }));
+      setTransferComplete(true);
+      
+      // Fire confetti after the state update
+      fireConfetti();
+    }, 500);
+  };
+
+  const getProgressPercentage = () => {
+    return (state.currentAmount / state.targetAmount) * 100;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Initial message */}
+      {!transferComplete && !showTransferConfirmation && (
+        <div className="flex justify-start">
+          <div className="max-w-[80%] rounded-lg p-4 bg-gray-100">
+            <div className="flex items-center gap-2 mb-3">
+              <Rocket className="h-5 w-5 text-blue-500" />
+              <span className="font-medium">Travel Fund Goal</span>
+            </div>
+            <p className="mb-4">
+              You're ₹{state.targetAmount - state.currentAmount} away from completing your 'Travel Fund' savings goal. 
+              Shall we transfer ₹500 today to keep your savings streak alive?
+            </p>
+            <div className="mb-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                <div
+                  className="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
+                  style={{ width: `${getProgressPercentage()}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>₹{state.currentAmount.toLocaleString()}</span>
+                <span>₹{state.targetAmount.toLocaleString()}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mb-4 p-2 bg-orange-100 rounded-lg">
+              <Flame className="h-5 w-5 text-orange-500" />
+              <span className="text-sm">{state.streakDays} days streak! Keep it going!</span>
+            </div>
+            <button
+              onClick={handleTransfer}
+              className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Transfer ₹500
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer confirmation */}
+      {showTransferConfirmation && (
+        <div className="flex justify-start">
+          <div className="max-w-[80%] rounded-lg p-4 bg-gray-100">
+            <p className="mb-4">Transfer ₹500 to Travel Fund?</p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmTransfer}
+                className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setShowTransferConfirmation(false)}
+                className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success message */}
+      {transferComplete && (
+        <div className="flex justify-start">
+          <div className="max-w-[80%] rounded-lg p-4 bg-gray-100">
+            <div className="flex items-center gap-2 mb-3 text-green-500">
+              <Check className="h-5 w-5" />
+              <span className="font-medium">Transfer Complete!</span>
+            </div>
+            <div className="mb-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                <div
+                  className="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
+                  style={{ width: `${getProgressPercentage()}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>₹{(state.currentAmount).toLocaleString()}</span>
+                <span>₹{state.targetAmount.toLocaleString()}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mb-4 p-2 bg-orange-100 rounded-lg">
+              <Flame className="h-5 w-5 text-orange-500" />
+              <span className="text-sm">{state.streakDays} days streak! You're on fire! 🔥</span>
+            </div>
+            {state.isCompleted && (
+              <div className="p-3 bg-green-100 rounded-lg text-green-800">
+                🎉 Congratulations! You've reached your Travel Fund goal! Time to plan that trip!
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+----------------------------------------
+
+File: src/components/demos/PeerComparison.tsx
+----------------------------------------
+// src/components/demos/PeerComparisonDemo.tsx
+import React, { useState, useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Trophy, Target, Users } from 'lucide-react';
+
+const savingsData = [
+  { name: 'Top 10%', amount: 12000, color: '#FFD700' },
+  { name: 'You', amount: 10000, color: '#4CAF50' },
+  { name: 'Peer Average', amount: 8000, color: '#90CAF9' }
+];
+
+const leaderboardData = [
+  { rank: 1, name: 'Finance Wizard', savings: 14000, percentile: "Top 1%" },
+  { rank: 2, name: 'Money Master', savings: 12500, percentile: "Top 5%" },
+  { rank: 3, name: 'You', savings: 10000, percentile: "Top 25%", isUser: true },
+  { rank: 4, name: 'Budget Pro', savings: 9000, percentile: "Top 30%" },
+  { rank: 5, name: 'Savings Rookie', savings: 8000, percentile: "Top 40%" }
+];
+
+interface Message {
+  type: 'bot' | 'user';
+  text: string;
+  showChart?: boolean;
+  showLeaderboard?: boolean;
+  showChallenge?: boolean;
+}
+
+export const PeerComparisonDemo = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      type: 'user',
+      text: "How do I compare to others like me?"
+    }
+  ]);
+
+  useEffect(() => {
+    // Add bot response after initial render
+    const timer1 = setTimeout(() => {
+      setMessages(prev => [...prev, {
+        type: 'bot',
+        text: "You're in the top 25% of savers in your age group, with ₹10,000 saved this month! Most peers save ₹8,000. Let's look at how you stack up:",
+        showChart: true,
+        showLeaderboard: true
+      }]);
+
+      // Add challenge message after showing stats
+      const timer2 = setTimeout(() => {
+        setMessages(prev => [...prev, {
+          type: 'bot',
+          text: "Want to aim for the top 10% next month? That's just ₹2,000 more in savings! 🎯",
+          showChallenge: true
+        }]);
+      }, 2000);
+
+      return () => clearTimeout(timer2);
+    }, 1000);
+
+    return () => clearTimeout(timer1);
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      {messages.map((message, index) => (
+        <div
+          key={index}
+          className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-[80%] rounded-lg p-4 ${
+              message.type === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+            }`}
+          >
+            <p className="whitespace-pre-line">{message.text}</p>
+            
+            {message.showChart && (
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Users className="h-5 w-5 text-blue-500" />
+                  <span className="font-medium">Savings Comparison</span>
+                </div>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={savingsData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" prefix="₹" />
+                      <YAxis dataKey="name" type="category" />
+                      <Tooltip 
+                        formatter={(value) => `₹${value.toLocaleString()}`}
+                        cursor={{ fill: 'transparent' }}
+                      />
+                      <Bar 
+                        dataKey="amount" 
+                        radius={[0, 4, 4, 0]}
+                      >
+                        {savingsData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {message.showLeaderboard && (
+              <div className="mt-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Trophy className="h-5 w-5 text-yellow-500" />
+                  <span className="font-medium">Savings Leaderboard</span>
+                </div>
+                <div className="space-y-3">
+                  {leaderboardData.map((entry, index) => (
+                    <div 
+                      key={index}
+                      className={`flex items-center justify-between p-3 rounded-lg ${
+                        entry.isUser ? 'bg-blue-50 border border-blue-100' : 'bg-white border border-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 flex items-center justify-center rounded-full ${
+                          index < 3 ? 'bg-yellow-500 text-white' : 'bg-gray-200'
+                        }`}>
+                          {entry.rank}
+                        </div>
+                        <div>
+                          <p className="font-medium">{entry.name}</p>
+                          <p className="text-sm text-gray-500">{entry.percentile}</p>
+                        </div>
+                      </div>
+                      <p className="font-medium">₹{entry.savings.toLocaleString()}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {message.showChallenge && (
+              <div className="mt-4">
+                <button className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Accept Top 10% Challenge
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+----------------------------------------
+
+File: src/components/demos/RoastDemo.tsx
+----------------------------------------
+// src/components/demos/RoastDemo.tsx
+import React, { useState, useEffect } from 'react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { Coffee, Send } from 'lucide-react';
+
+const spendingData = [
+  { name: 'Coffee', value: 8000, color: '#8B4513' },
+  { name: 'Dining Out', value: 15000, color: '#FF8C00' },
+  { name: 'Entertainment', value: 10000, color: '#4CAF50' },
+  { name: 'Shopping', value: 7000, color: '#2196F3' }
+];
+
+interface Message {
+  type: 'bot' | 'user';
+  text: string;
+  showChart?: boolean;
+  showAction?: boolean;
+}
+
+export const RoastDemo = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      type: 'bot',
+      text: "Whoa, ₹8,000 on coffee this month? Did you buy the entire Starbucks? ☕",
+      showChart: true
+    }
+  ]);
+  const [showResponseButton, setShowResponseButton] = useState(false);
+  const [responded, setResponded] = useState(false);
+
+  useEffect(() => {
+    // Show the response button after 2 seconds
+    const timer = setTimeout(() => {
+      setShowResponseButton(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleUserResponse = () => {
+    setShowResponseButton(false);
+    setResponded(true);
+
+    const newMessages: Message[] = [
+      ...messages,
+      {
+        type: 'user',
+        text: "haha, yes sorry i shot overboard"
+      }
+    ];
+    
+    setMessages(newMessages);
+    
+    // Add bot response after a delay
+    setTimeout(() => {
+      setMessages([
+        ...newMessages,
+        {
+          type: 'bot',
+          text: "How about we set a ₹5,000 cap for next month's coffee spend? That still gets you your daily caffeine fix, but leaves more for your savings! ✨",
+          showAction: true
+        }
+      ]);
+    }, 1000);
+  };
+
+  return (
+    <div className="space-y-4">
+      {messages.map((message, index) => (
+        <div
+          key={index}
+          className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-[80%] rounded-lg p-4 ${
+              message.type === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+            }`}
+          >
+            <p className="whitespace-pre-line">{message.text}</p>
+            
+            {message.showChart && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-600 mb-2">Discretionary Expenses Breakdown</p>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={spendingData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {spendingData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value: number) => `₹${value.toLocaleString()}`}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="mt-4 space-y-2">
+                  {spendingData.map((entry, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: entry.color }}
+                        />
+                        <span className="text-gray-700">{entry.name}</span>
+                      </div>
+                      <span className="text-gray-700">₹{entry.value.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {message.showAction && (
+              <div className="mt-4">
+                <button className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                  <Coffee className="h-4 w-4" />
+                  Set ₹5,000 Coffee Budget
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+
+      {showResponseButton && !responded && (
+        <div className="flex justify-end opacity-0 animate-fade-in">
+          <button
+            onClick={handleUserResponse}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+          >
+            "haha, yes sorry i shot overboard"
+            <Send className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+----------------------------------------
+
+File: src/components/demos/SpendingInsightsDemo.tsx
+----------------------------------------
+import React from 'react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { Coffee, UtensilsCrossed } from 'lucide-react';
+
+const demoData = {
+  conversation: [
+    {
+      type: 'user',
+      text: "How much did I spend on dining this month?"
+    },
+    {
+      type: 'bot',
+      text: "You've spent ₹4,500 on dining this month. Here's the breakdown:",
+      chartData: [
+        { name: 'Zomato', value: 2200, color: '#FF4B4B' },
+        { name: 'Swiggy', value: 1500, color: '#FF8C00' },
+        { name: 'Restaurants', value: 800, color: '#4CAF50' }
+      ],
+      followUp: "I noticed you ordered from Zomato twice for dinner this week. You could save around ₹800 by cooking at home on weekdays - that's enough for a weekend brunch at your favorite café! Want some quick dinner recipes that take less time than waiting for delivery? 👩‍🍳"
+    }
+  ]
+};
+
+export const SpendingInsightsDemo = () => {
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        {demoData.conversation.map((message, index) => (
+          <div
+            key={index}
+            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[80%] rounded-lg p-4 ${
+                message.type === 'user'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100'
+              }`}
+            >
+              <p className="whitespace-pre-line">{message.text}</p>
+              {message.chartData && (
+                <div className="mt-4">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={message.chartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {message.chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {message.chartData.map((entry, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: entry.color }}
+                          />
+                          <span>{entry.name}</span>
+                        </div>
+                        <span>₹{entry.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {message.followUp && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg text-gray-800">
+                  {message.followUp}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-3">
+        <button className="bg-white border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+          Show me recipes
+          <UtensilsCrossed className="h-4 w-4" />
+        </button>
+        <button className="bg-white border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+          Set dining budget
+          <Coffee className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+----------------------------------------
+
+File: src/components/demos/SubscriptionInsightsDemo.tsx
+----------------------------------------
+import React, { useState, useEffect } from 'react';
+import { Card } from "@/components/ui/card";
+import { AlertCircle, X, Play, Music, Film, BookOpen } from 'lucide-react';
+
+interface Subscription {
+  id: string;
+  name: string;
+  cost: number;
+  lastUsed: string;
+  icon: React.ElementType;
+  color: string;
+}
+
+export const SubscriptionInsightsDemo = () => {
+  const [showInitialPrompt, setShowInitialPrompt] = useState(false);
+  const [showSubscriptions, setShowSubscriptions] = useState(false);
+  const [showUserResponse, setShowUserResponse] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const subscriptions: Subscription[] = [
+    {
+      id: 'netflix',
+      name: 'Netflix',
+      cost: 499,
+      lastUsed: '2 months ago',
+      icon: Film,
+      color: '#E50914'
+    },
+    {
+      id: 'spotify',
+      name: 'Spotify',
+      cost: 199,
+      lastUsed: '2 days ago',
+      icon: Music,
+      color: '#1DB954'
+    },
+    {
+      id: 'kindle',
+      name: 'Kindle Unlimited',
+      cost: 169,
+      lastUsed: '3 months ago',
+      icon: BookOpen,
+      color: '#FF9900'
+    }
+  ];
+
+  const handleCancelClick = () => {
+    setShowUserResponse(true);
+    setTimeout(() => setShowConfirmation(true), 1000);
+  };
+
+  useEffect(() => {
+    setTimeout(() => setShowInitialPrompt(true), 1000);
+    setTimeout(() => setShowSubscriptions(true), 2500);
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      {showInitialPrompt && (
+        <div className="flex justify-start animate-fade-in">
+          <div className="max-w-[80%] rounded-lg p-4 bg-gray-100">
+            <div className="flex items-center gap-2 text-amber-600 mb-2">
+              <AlertCircle className="h-5 w-5" />
+              <span className="font-medium">Subscription Alert</span>
+            </div>
+            <p>I noticed you haven't used Netflix in 2 months. Want to cancel and save ₹499/month?</p>
+          </div>
+        </div>
+      )}
+
+      {showSubscriptions && (
+        <div className="animate-fade-in">
+          <Card className="p-4">
+            <div className="space-y-4">
+              {subscriptions.map((sub) => (
+                <div 
+                  key={sub.id}
+                  className={`p-4 rounded-lg border ${
+                    sub.id === 'netflix' ? 'bg-red-50 border-red-100' : 'bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="p-2 rounded-lg"
+                        style={{ backgroundColor: `${sub.color}20` }}
+                      >
+                        <sub.icon 
+                          className="h-5 w-5" 
+                          style={{ color: sub.color }}
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium">{sub.name}</p>
+                        <p className="text-sm text-gray-500">Last used: {sub.lastUsed}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">₹{sub.cost}/mo</p>
+                      {sub.id === 'netflix' && !showUserResponse && (
+                        <button
+                          onClick={handleCancelClick}
+                          className="mt-2 text-sm text-red-600 hover:text-red-700"
+                        >
+                          Cancel subscription
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Total Monthly Cost</span>
+                <span className="font-medium">₹867</span>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {showUserResponse && (
+        <div className="flex justify-end animate-fade-in">
+          <div className="max-w-[80%] rounded-lg p-4 bg-blue-500 text-white">
+            Yes, please cancel my Netflix subscription
+          </div>
+        </div>
+      )}
+
+      {showConfirmation && (
+        <div className="flex justify-start animate-fade-in">
+          <div className="max-w-[80%] rounded-lg p-4 bg-gray-100">
+            <div className="flex items-center gap-2 text-green-600 mb-2">
+              <Play className="h-5 w-5" />
+              <span className="font-medium">Subscription Cancelled</span>
+            </div>
+            <p>I've cancelled your Netflix subscription. You'll save ₹499 monthly going forward. Your subscription will remain active until the end of the current billing period.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+----------------------------------------
