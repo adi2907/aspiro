@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { LineChart,PieChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar,Pie, Cell } from 'recharts';
 import { Send, Target, ChevronRight, Trophy, Gift, Rocket } from 'lucide-react';
+import { BudgetPersonalityDemo } from './demos/BudgetPersonalityQuizDemo';
 let messageIdCounter = 0;
 
 interface ChartDataEntry {
@@ -12,6 +13,7 @@ interface ChartDataEntry {
 
 const HIGHLIGHTED_OPTIONS = [
   'talk spending',
+  'Motivating savings',
   'Roast me',
   'Set a Challenge',
   'merchant insights',
@@ -23,6 +25,8 @@ const HIGHLIGHTED_OPTIONS = [
   'Set up savings plan',
   'Set up RD now',
   'Credit card options',
+  'Setup your Finance',
+  'roast and query'
 ];
 
 const TOPIC_GROUPS = {
@@ -31,7 +35,8 @@ const TOPIC_GROUPS = {
     topics: [
       "where's my money going?",
       "any bills upcoming",
-      "talk spending"
+      "talk spending",
+      "Setup your Finance"
     ]
   },
   money: {
@@ -40,6 +45,7 @@ const TOPIC_GROUPS = {
       "add to savings",
       "withdraw from savings", 
       "set a spend challenge",
+      "Motivating savings",
       "get a quick cover"
     ]
   },
@@ -48,6 +54,7 @@ const TOPIC_GROUPS = {
     topics: [
       "hype me",
       "roast me",
+      "roast and query",
       "play spendr",
       "make Ignis smarter"
     ]
@@ -156,6 +163,7 @@ interface GoalTracker {
   current: number;
   target: number;
   percentage: number;
+  title?: string; 
 }
 
 
@@ -168,6 +176,7 @@ export default function ConversationalDemo() {
 
   const [inputMessage, setInputMessage] = useState('');
   const [showHomeScreen, setShowHomeScreen] = useState(true);
+  const [showSetupScreen, setShowSetupScreen] = useState(false);
 
   const addMessage = (message: Message) => {
     const uniqueId = `msg-${++messageIdCounter}`;
@@ -179,6 +188,10 @@ export default function ConversationalDemo() {
   
   const handleOptionClick = (option: string) => {
     setShowHomeScreen(false);
+    if (option === 'Setup your Finance') {
+      setShowSetupScreen(true);
+      return;
+    }
     if (option === 'talk spending') {
       addMessage({
         id: Date.now().toString(),
@@ -399,7 +412,115 @@ export default function ConversationalDemo() {
       });
     }, 500);
     break;
+
+  case 'Setup your Finance':
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('setCurrentScreen', { 
+      detail: 'flows' 
+    }));
+  }
+  break;
+
+  case 'roast and query':
+  setTimeout(() => {
+    addMessage({
+      id: Date.now().toString(),
+      type: 'bot',
+      content: "You've officially crushed your eating-out budget for the month—by spending ₹5,000 on shawarma and coffee! Want to know how to get back on track?",
+      options: ['Yeah, what do I do now?']
+    });
+  }, 500);
+  break;
+
+case 'Yeah, what do I do now?':
+  setTimeout(() => {
+    addMessage({
+      id: Date.now().toString(),
+      type: 'bot',
+      content: "Here's an idea: Swap out 2 dinners out for cooking at home and save ₹1,500 instantly. Plus, I've found an offer on BigBasket for grocery discounts—want me to share?",
+      options: ['Yes, send me the link!']
+    });
+  }, 500);
+  break;
+
+case 'Yes, send me the link!':
+  setTimeout(() => {
+    addMessage({
+      id: Date.now().toString(),
+      type: 'bot',
+      content: "Also, for your next outing, use your Axis credit card. It gives you 10% cashback on dining. That's ₹500 saved right there!",
+      options: ["Wow, I didn't even know about that!"]
+    });
+  }, 500);
+  break;
+
+case "Wow, I didn't even know about that!":
+  setTimeout(() => {
+    addMessage({
+      id: Date.now().toString(),
+      type: 'bot',
+      content: "Keep an eye on your remaining budget for the month: ₹1,000. I'll check in next week to see how you're doing. You've got this!",
+      options: ['Show budget breakdown', 'Set budget reminder']
+    });
+  }, 500);
+  break;
+  case 'Motivating savings':
+  setTimeout(() => {
+    addMessage({
+      id: Date.now().toString(),
+      type: 'user',
+      content: "Hey Aspiro, how's my Maldives trip fund looking?"
+    });
+    setTimeout(() => {
+      addMessage({
+        id: Date.now().toString(),
+        type: 'bot',
+        content: "Let me check... You've been consistently saving ₹8,000 every month for 3 months—way to crush it! You're now 50% of the way to your goal! 🎉\n\nThat's amazing progress. Want to see a fun milestone tracker?",
+        options: ['Sure, show me!']
+      });
+    }, 1000);
+  }, 500);
+  break;
+
+case 'Sure, show me!':
+  setTimeout(() => {
+    addMessage({
+      id: Date.now().toString(),
+      type: 'bot',
+      content: "Your Maldives goal: ₹48,000. Saved so far: ₹24,000. You're halfway there—let's keep it up!",
+      goalTracker: {
+        current: 24000,
+        target: 48000,
+        percentage: 50,
+        title: "Maldives Trip Fund"
+      },
+      celebration: true,
+      options: ["Let's do it!"]
+    });
+  }, 500);
+  break;
+
+case "Let's do it!":
+  setTimeout(() => {
+    addMessage({
+      id: Date.now().toString(),
+      type: 'bot',
+      content: "If you stick to this pace, you'll hit your target in 3 more months. Want a fun challenge to speed it up? Save ₹1,000 more this month, and I'll show you an exclusive Maldives travel deal!",
+      options: ['Show me travel deals', 'Set savings reminder']
+    });
+    setTimeout(() => {
+      addMessage({
+        id: Date.now().toString(),
+        type: 'bot',
+        content: "Great! I'll remind you next week to skip unnecessary spends and stay on track. Maldives, here you come! 🏖️✈️",
+        options: ['Track progress', 'Set up auto-save']
+      });
+    }, 1500);
+  }, 500);
+  break;
+
       }
+    
   };
 
   
@@ -414,7 +535,7 @@ export default function ConversationalDemo() {
                 key={topic}
                 onClick={() => handleOptionClick(topic)}
                 className={`bg-white border rounded-full px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                  topic === 'talk spending' ? 'border-blue-500 border-2 animate-pulse' : ''
+                  HIGHLIGHTED_OPTIONS.includes(topic) ? 'border-blue-500 border-2 animate-pulse' : ''
                 }`}
               >
                 {topic}
@@ -430,9 +551,10 @@ export default function ConversationalDemo() {
     <div className="min-h-screen bg-gray-50 p-4">
       <Card className="max-w-2xl mx-auto h-[80vh] flex flex-col">
         <CardContent className="flex-1 overflow-y-auto p-4">
-        {showHomeScreen ? renderHomeScreen() : (
-          <div className="space-y-4">
-            {messages.map((message) => (
+          {showHomeScreen ? renderHomeScreen() : 
+           showSetupScreen ? <BudgetPersonalityDemo /> : (
+            <div className="space-y-4">
+              {messages.map((message) => (
               <div key={message.id} 
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
@@ -610,7 +732,7 @@ export default function ConversationalDemo() {
                   {message.goalTracker && (
                     <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">Laptop Savings Goal</span>
+                      <span className="font-medium">{message.goalTracker.title || "Savings Goal"}</span>
                         <span className="text-blue-600">{message.goalTracker.percentage}%</span>
                       </div>
                       <div className="w-full bg-blue-200 rounded-full h-2">

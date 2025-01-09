@@ -7,6 +7,7 @@ import {RoastDemo} from './demos/RoastDemo'
 import { PeerComparisonDemo } from './demos/PeerComparison';
 import { FinancialHealthDemo } from './demos/FinancialHealthDemo';
 import { SubscriptionInsightsDemo } from './demos/SubscriptionInsightsDemo';
+import { BudgetPersonalityDemo } from './demos/BudgetPersonalityQuizDemo';
 
 
 
@@ -46,7 +47,14 @@ const DEMOS = [
     title: 'Subscription Insights',
     component: SubscriptionInsightsDemo,
     icon: X
-  }
+  },
+  {
+    id: 'budget-personality',
+    title: 'Setup your Finance',
+    component: BudgetPersonalityDemo,
+    icon: Target,
+    highlighted: true // We can add this property to show special styling
+  },
 ];
 
 const DemoFlow = () => {
